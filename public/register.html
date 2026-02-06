@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/form_styles.css">
+</head>
+<body>
+
+    <form class="auth-form">
+        <h2>Регистрация</h2>
+
+        <label for="name">Имя</label>
+        <input type="text" id="name" placeholder="Иван">
+        <span id="nameError" class="error-message"></span>
+
+        <label for="lastname">Фамилия</label>
+        <input type="text" id="lastname" placeholder="Иванов">
+        <span id="lastnameError" class="error-message"></span>
+
+        <label for="telephone">Телефон</label>
+        <input type="tel" id="telephone" placeholder="+7 (999) 000-00-00">
+        <span id="telephoneError" class="error-message"></span>
+
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="example@example.com">
+        <span id="emailError" class="error-message"></span>
+
+        <label for="password">Пароль (минимум 6 символов)</label>
+        <input type="password" id="password" placeholder="••••••••">
+        <span id="passwordError" class="error-message"></span>
+
+        <button type="submit">Создать аккаунт</button>
+        <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
+    </form>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>
