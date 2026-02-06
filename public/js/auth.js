@@ -25,10 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!password) { setError("passwordError", "*Введите пароль"); hasError = true; }
 
         if (isRegistration) {
-            const firstname = nameField.value.trim();
+            const name = nameField.value.trim();
             const telephone = document.getElementById("telephone")?.value.trim();
 
-            if (!firstname) { setError("nameError", "*Введите имя"); hasError = true; }
+            if (!name) { setError("nameError", "*Введите имя"); hasError = true; }
             if (!telephone) { setError("telephoneError", "*Введите телефон"); hasError = true; }
             if (password && password.length < 6) { 
                 setError("passwordError", "*Минимум 6 символов"); 
@@ -38,12 +38,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (hasError) return; 
 
-
         const endpoint = isRegistration ? "/api/auth/register" : "/api/auth/login";
         
         const body = { email, password };
         if (isRegistration) {
-            body.firstname = document.getElementById("name").value.trim();
+            body.name = document.getElementById("name").value.trim();
             body.lastname = document.getElementById("lastname")?.value.trim() || "";
             body.telephone = document.getElementById("telephone")?.value.trim() || "";
         }
@@ -60,13 +59,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (isRegistration) {
                     window.location.href = "/login";
                 } else {
-                    
-                    // window.location.href = data.user?.role === 'admin' ? "/dashboard" : "/";
+                    localStorage.setItem("role", data.user.role);
+                    window.location.href = "/";
                 }
             } else {
                 handleBackendErrors(data.error);
             }
-        } catch (err) {}
+        } catch (err) {
+            console.log(err.message);
+        }
     });
 
 
@@ -74,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof error === 'object' && error !== null) {
             if (error.email) setError("emailError", error.email);
             if (error.password) setError("passwordError", error.password);
-            if (error.firstname || error.name) setError("nameError", error.firstname);
+            if (error.name) setError("nameError", error.name);
             if (error.lastname) setError("lastnameError", error.lastname);
             if (error.telephone) setError("telephoneError", error.telephone);
         } else {}

@@ -31,31 +31,33 @@ async function findByEmail(email) {
   );
   return rows[0] || null;
 }
-
-async function create(userData) {
-  const { name, email, password, ...optionalFields } = userData;
-
+async function create({ name, lastname, telephone, email, password, ip }) {
   const sql = `
-    INSERT INTO users_table 
+    INSERT INTO users 
     (
-      name_col, 
-      email_col, 
-      password_col, 
-      status, 
-      created_at
+      name, 
+      lastname, 
+      telephone, 
+      email, 
+      password, 
+      ip
     ) 
-    VALUES (?, ?, ?, 1, NOW())
+    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
   const [result] = await pool.execute(sql, [
     name, 
+    lastname, 
+    telephone, 
     email, 
-    password
+    password, 
+    ip
   ]);
 
   return { 
     id: result.insertId, 
-    name: name 
+    name,
+    email 
   };
 }
 
