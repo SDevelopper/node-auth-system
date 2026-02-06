@@ -31,6 +31,7 @@ async function findByEmail(email) {
   );
   return rows[0] || null;
 }
+
 async function create({ name, lastname, telephone, email, password, ip }) {
   const sql = `
     INSERT INTO users 
