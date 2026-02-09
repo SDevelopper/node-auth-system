@@ -82,7 +82,7 @@ const refreshAccessToken = async (token) => {
 };
 
 
-const register = async ({ name, lastname, telephone, email, password }) => {
+const register = async ({ firstname, lastname, telephone, email, password }) => {
   const existingUser = await userRepository.findByEmail(email);
   if (existingUser)  throw new AppError(SERVICES.AUTH, CODES.USER_EXISTS);
 
@@ -91,7 +91,7 @@ const register = async ({ name, lastname, telephone, email, password }) => {
 
   const hashedPassword = await hashPassword(password);
   await userRepository.create({
-    name,
+    firstname,
     lastname,
     telephone,
     email,
@@ -100,7 +100,7 @@ const register = async ({ name, lastname, telephone, email, password }) => {
 
   return { 
     success: true, 
-    message: 'Регистрация прошла успешно.' 
+    message: 'Регистрация прошла успешно. Пожалуйста, войдите в систему.' 
   };
 };
 

@@ -11,42 +11,50 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
     };
 
-    form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        clearErrors();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearErrors();
 
-        const nameField = document.getElementById("name");
-        const isRegistration = !!nameField;
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
-        let hasError = false;
+    const nameField = document.getElementById("firstname");
+    const isRegistration = !!nameField;
 
+    const isAdminLogin = form.id === "admin-form";
+
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value; 
+    let hasError = false;
+
+    const body = { email, password };
+
+    if (isRegistration) {
+        const firstname = nameField.value.trim();
+        const lastname = document.getElementById("lastname")?.value.trim() || "";
+        const telephone = document.getElementById("telephone")?.value.trim() || "";
+
+        if (!firstname) { setError("nameError", "*Введите имя"); hasError = true; }
+        if (!telephone) { setError("telephoneError", "*Введите телефон"); hasError = true; }
+        if (password.length < 6) { setError("passwordError", "*Минимум 6 символов"); hasError = true; }
+
+        body.firstname = firstname;
+        body.lastname = lastname;
+        body.telephone = telephone;
+    } else {
+ 
         if (!email) { setError("emailError", "*Введите E-mail"); hasError = true; }
         if (!password) { setError("passwordError", "*Введите пароль"); hasError = true; }
+    }
 
-        if (isRegistration) {
-            const name = nameField.value.trim();
-            const telephone = document.getElementById("telephone")?.value.trim();
+    if (hasError) return; 
 
-            if (!name) { setError("nameError", "*Введите имя"); hasError = true; }
-            if (!telephone) { setError("telephoneError", "*Введите телефон"); hasError = true; }
-            if (password && password.length < 6) { 
-                setError("passwordError", "*Минимум 6 символов"); 
-                hasError = true; 
-            }
+    
+    let endpoint;
+        if (isAdminLogin) {
+            endpoint = "/api/admin/login";
+        } else{
+            endpoint = isRegistration ? "/api/auth/register" : "/api/auth/login";
         }
-
-        if (hasError) return; 
-
-        const endpoint = isRegistration ? "/api/auth/register" : "/api/auth/login";
-        
-        const body = { email, password };
-        if (isRegistration) {
-            body.name = document.getElementById("name").value.trim();
-            body.lastname = document.getElementById("lastname")?.value.trim() || "";
-            body.telephone = document.getElementById("telephone")?.value.trim() || "";
-        }
-
+    
         try {
             const res = await fetch(endpoint, {
                 method: "POST",
@@ -58,7 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (res.ok) {
                 if (isRegistration) {
                     window.location.href = "/login";
-                } else {
+                }else if(isAdminLogin){
+                    window.location.href = "/admin/dashboard";
+                } 
+                else {
                     localStorage.setItem("role", data.user.role);
                     window.location.href = "/";
                 }
@@ -75,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof error === 'object' && error !== null) {
             if (error.email) setError("emailError", error.email);
             if (error.password) setError("passwordError", error.password);
-            if (error.name) setError("nameError", error.name);
+            if (error.firstname) setError("nameError", error.firstname);
             if (error.lastname) setError("lastnameError", error.lastname);
             if (error.telephone) setError("telephoneError", error.telephone);
         } else {}

@@ -32,11 +32,11 @@ async function findByEmail(email) {
   return rows[0] || null;
 }
 
-async function create({ name, lastname, telephone, email, password, ip }) {
+async function create({ firstname, lastname, telephone, email, password, ip }) {
   const sql = `
     INSERT INTO users 
     (
-      name, 
+      firstname, 
       lastname, 
       telephone, 
       email, 
@@ -47,7 +47,7 @@ async function create({ name, lastname, telephone, email, password, ip }) {
   `;
 
   const [result] = await pool.execute(sql, [
-    name, 
+    firstname, 
     lastname, 
     telephone, 
     email, 
@@ -57,7 +57,7 @@ async function create({ name, lastname, telephone, email, password, ip }) {
 
   return { 
     id: result.insertId, 
-    name,
+    firstname,
     email 
   };
 }

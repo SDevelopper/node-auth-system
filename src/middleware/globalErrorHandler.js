@@ -11,6 +11,12 @@ const globalErrorHandler = (err, req, res, next) => {
     }
   }
 
+  if (err.name === 'ZodError') {
+    return res.status(400).json({
+    errors: err.flatten().fieldErrors
+  });
+}
+
   console.error('!!! CRITICAL ERROR:', err);
   res.status(500).json({ error: { generic: 'Критическая ошибка сервера' } });
 };

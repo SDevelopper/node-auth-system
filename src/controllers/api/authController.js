@@ -50,15 +50,9 @@ async function handleAdminLogin(req, res) {
 
 async function handleRegistration(req, res) {
 
-    const { name, lastname, telephone, email, password } = req.body;
+  const result = await authService.register(req.body);
 
-    if (!name || !lastname || !email || !password) {
-      return res.status(400).json({ error: "Заполните все обязательные поля" });
-    }
-
-    const result = await authService.register({ name, lastname, telephone, email, password });
-
-    return res.status(201).json(result); 
+  return res.status(201).json(result); 
 }
 
 

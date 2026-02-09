@@ -2,9 +2,14 @@ const { Router } = require('express');
 const router = new Router();
 const authController = require('../controllers/api/authController'); 
 
-router.post('/login', authController.handleUserLogin);
-router.post('/manager-access', authController.handleAdminLogin);
-router.post('/register', authController.handleRegistration);
+const validate = require('../middleware/validate');
+const { registerSchema, loginSchema } = require('../validations/authValidation');
+
+router.post('/register', validate(registerSchema), authController.handleRegistration);
+
+router.post('/login', validate(loginSchema), authController.handleUserLogin);
+router.post('/manager-access', validate(loginSchema), authController.handleAdminLogin);
+
 router.post('/logout', authController.handleLogout);
 
 module.exports = router;
