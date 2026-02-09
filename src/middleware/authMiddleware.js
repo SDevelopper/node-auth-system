@@ -1,41 +1,55 @@
 const jwt = require('jsonwebtoken');
-
-const handleUnauthorized = (req, res, message) => {
-  if (req.xhr || req.headers.accept?.includes('json')) {
-    return res.status(401).json({ error: message });
-  }
-  return res.redirect('/login');
-};
+const authService = require('../services/authService');
+const AppError = require('../errors/AppError');
+const { SERVICES, CODES } = require('../errors/errorCodes');
 
 /**
  * @param {string} requiredRole
  */
-
-const checkAuth = (requiredRole) => {
-  return (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    const token = (authHeader && authHeader.split(' ')[1]) || req.cookies?.token;
-    if (!token) {
-      console.log('Доступ запрещен: Токен отсутствует');
-      return handleUnauthorized(req, res, "Вы не авторизованы");
-    }
-
+function checkAuth(requiredRole) {
+  return async function authMiddleware(req, res, next) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+      const authHeader = req.headers.authorization;
+      let token = (authHeader && authHeader.split(' ')[1]) || req.cookies?.accessToken;
+
+      if (token) {
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+        req.user = decoded;
+
+        if (requiredRole && decoded.role !== requiredRole) {
+          return next(new AppError(SERVICES.AUTH, CODES.FORBIDDEN));
+        }
+
+        return next();
+      }
+
+      const refreshToken = req.cookies?.refreshToken;
+      if (!refreshToken) {
+        return next(new AppError(SERVICES.AUTH, CODES.NO_TOKEN));
+      }
+
+      const result = await authService.refreshAccessToken(refreshToken);
+
+      res.cookie('token', result.accessToken, {
+        httpOnly: true,
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000
+      });
+
+      const decoded = jwt.verify(result.accessToken, process.env.JWT_ACCESS_SECRET);
       req.user = decoded;
 
       if (requiredRole && decoded.role !== requiredRole) {
-        return res.status(403).json({ error: "У вас недостаточно прав" });
+        return next(new AppError(SERVICES.AUTH, CODES.FORBIDDEN));
       }
 
-      console.log(`Успешный вход: ID ${decoded.id}, Роль: ${decoded.role}`);
+
       next();
-      
+
     } catch (err) {
-      console.error('Ошибка верификации токена:', err.message);
-      return handleUnauthorized(req, res, "Сессия истекла, войдите снова");
+      return next(err);
     }
   };
-};
+}
 
 module.exports = checkAuth;
