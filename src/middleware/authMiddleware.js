@@ -1,51 +1,49 @@
 const jwt = require('jsonwebtoken');
 const authService = require('../services/authService');
 const AppError = require('../errors/AppError');
-const { SERVICES, CODES } = require('../errors/errorCodes');
+const { SERVICES, CODES } = require('../constants/errors');
 
 /**
  * @param {string} requiredRole
  */
+
 function checkAuth(requiredRole) {
+
   return async function authMiddleware(req, res, next) {
+
+    function verify (token) {
+      const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+      if (requiredRole && decoded.role !== requiredRole) {
+        throw new AppError(SERVICES.AUTH, CODES.FORBIDDEN);
+      }
+      return decoded;
+    };
+
     try {
-      const authHeader = req.headers.authorization;
-      let token = (authHeader && authHeader.split(' ')[1]) || req.cookies?.accessToken;
+      let token = req.cookies?.accessToken;
+      
+      if(!token && req.headers.authorization?.startsWith('Bearer '))
+        token = req.headers.authorization.substring(7);
 
       if (token) {
-        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-        req.user = decoded;
-
-        if (requiredRole && decoded.role !== requiredRole) {
-          return next(new AppError(SERVICES.AUTH, CODES.FORBIDDEN));
-        }
-
+        req.user = verify(token);
         return next();
       }
 
       const refreshToken = req.cookies?.refreshToken;
-      if (!refreshToken) {
-        return next(new AppError(SERVICES.AUTH, CODES.NO_TOKEN));
-      }
+      if (!refreshToken) throw new AppError(SERVICES.AUTH, CODES.UNAUTHORIZED);
 
       const result = await authService.refreshAccessToken(refreshToken);
-
-      res.cookie('token', result.accessToken, {
+      
+      res.cookie('accessToken', result.accessToken, {
         httpOnly: true,
-        sameSite: 'strict',
-        maxAge: 15 * 60 * 1000
+        sameSite: 'lax',
+        maxAge: 15 * 60 * 1000,
       });
 
-      const decoded = jwt.verify(result.accessToken, process.env.JWT_ACCESS_SECRET);
-      req.user = decoded;
-
-      if (requiredRole && decoded.role !== requiredRole) {
-        return next(new AppError(SERVICES.AUTH, CODES.FORBIDDEN));
-      }
-
-
+      req.user = verify(result.accessToken);
       next();
-
+    
     } catch (err) {
       return next(err);
     }

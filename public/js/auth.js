@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     let endpoint;
         if (isAdminLogin) {
-            endpoint = "/api/admin/login";
+            endpoint = "/api/auth/admin/login";
         } else{
             endpoint = isRegistration ? "/api/auth/register" : "/api/auth/login";
         }
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (isRegistration) {
                     window.location.href = "/login";
                 }else if(isAdminLogin){
-                    window.location.href = "/admin/dashboard";
+                     window.location.href = "/admin/dashboard"; 
                 } 
                 else {
                     localStorage.setItem("role", data.user.role);

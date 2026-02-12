@@ -6,3 +6,5 @@ const validate = (schema) => (req, res, next) => {
     next(err); 
   }
 };
+
+module.exports = validate;

@@ -8,7 +8,7 @@ const { registerSchema, loginSchema } = require('../validations/authValidation')
 router.post('/register', validate(registerSchema), authController.handleRegistration);
 
 router.post('/login', validate(loginSchema), authController.handleUserLogin);
-router.post('/manager-access', validate(loginSchema), authController.handleAdminLogin);
+router.post('/admin/login', validate(loginSchema), authController.handleAdminLogin);
 
 router.post('/logout', authController.handleLogout);
 

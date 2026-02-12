@@ -32,35 +32,25 @@ async function findByEmail(email) {
   return rows[0] || null;
 }
 
-async function create({ firstname, lastname, telephone, email, password, ip }) {
+async function create({ firstname, lastname, email, telephone, password }) {
   const sql = `
-    INSERT INTO users 
-    (
-      firstname, 
-      lastname, 
-      telephone, 
-      email, 
-      password, 
-      ip
-    ) 
-    VALUES (?, ?, ?, ?, ?, ?)
   `;
 
   const [result] = await pool.execute(sql, [
-    firstname, 
-    lastname, 
-    telephone, 
-    email, 
-    password, 
-    ip
+    firstname,
+    lastname,
+    email,
+    telephone,
+    password
   ]);
 
-  return { 
-    id: result.insertId, 
+  return {
+    customer_id: result.insertId,
     firstname,
-    email 
+    role: 'ADMIN'
   };
 }
+
 
 async function saveToken(userId, tokenValue) {
   await pool.execute(

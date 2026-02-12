@@ -9,4 +9,6 @@ module.exports = {
   [CODES.NO_TOKEN]: { status: 401, field: null, message: "*Токен не предоставлен" },
   [CODES.TOKEN_REVOKED]: { status: 401, field: null, message: "*Токен недействителен или отозван" },
   [CODES.INVALID_TOKEN]: { status: 401, field: null, message: "*Неверный токен" },
+  [CODES.UNAUTHORIZED]: { status: 401, field: null, message: "*Вы не авторизованы, пожалуйста, войдите в систему"},
+
 };

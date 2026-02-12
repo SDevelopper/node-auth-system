@@ -61,14 +61,14 @@ const userLogin = async(email, password) =>{
 const adminLogin = async(email, password)=>{
   const user = await verifyUserCredentials(email, password);
 
-  if (user.role !== 'admin') {
+  if (user.role !== 'ADMIN') {
     throw new AppError(SERVICES.AUTH, CODES.FORBIDDEN);
   }
   return await createSession(user);
 }
 
 const refreshAccessToken = async (token) => {
-  if (!token) throw new AppError(SERVICES.AUTH, CODES.NO_TOKEN);
+  if (!token) throw new AppError(SERVICES.AUTH, CODES.UNAUTHORIZED);
 
   const payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
   const user = await userRepository.findById(payload.id);
@@ -95,7 +95,7 @@ const register = async ({ firstname, lastname, telephone, email, password }) => 
     lastname,
     telephone,
     email,
-    password: hashedPassword
+    password: hashedPassword,
   });
 
   return { 
